@@ -4,3 +4,6 @@
 
 compressed.txt
 cracked.txt
+
+__pycache__/
+.venv/
