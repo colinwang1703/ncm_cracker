@@ -1,4 +1,3 @@
-from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing
 import binascii
@@ -7,6 +6,7 @@ import base64
 import json
 import os
 import threading
+import time
 from Crypto.Cipher import AES
 
 # 全局锁用于文件写入
@@ -176,6 +176,5 @@ def main():
     
     print(f"\n处理完成！成功: {successful}, 失败: {failed}")
 
-if __name__ == '__main__':
 if __name__ == '__main__':
     main()
