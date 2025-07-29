@@ -85,7 +85,7 @@ def dump(file_path, name, progress_callback=None):
             
             # 准备输出文件
             file_name = os.path.splitext(os.path.basename(file_path))[0] + '.' + meta_data['format']
-            output_path = os.path.join(os.path.dirname(file_path), file_name)
+            output_path = os.path.join("02_decrypted", file_name)
             
             # 获取音频数据大小
             audio_start = f.tell()
@@ -134,7 +134,14 @@ def process_file_wrapper(args):
 def main():
     """主函数，实现并行处理"""
     console.print(Panel.fit("🚀 NCM 并行解密器", style="bold blue"))
-    console.print("✨ 优化技术：多进程并行 + 大缓冲区 + 优化算法\n")
+    console.print("✨ 优化技术：多进程并行 + 大缓冲区 + 优化算法")
+    console.print("📁 使用规范化目录结构：01_original -> 02_decrypted\n")
+    
+    # 确保目录结构存在
+    original_dir = pathlib.Path("01_original")
+    decrypted_dir = pathlib.Path("02_decrypted")
+    original_dir.mkdir(exist_ok=True)
+    decrypted_dir.mkdir(exist_ok=True)
     
     try:
         with open('cracked.txt', 'r', encoding='utf-8') as f:
@@ -142,27 +149,26 @@ def main():
     except FileNotFoundError:
         cracked = set()
     
-    # 查找需要处理的文件
-    current_directory = os.getcwd()
+    # 查找需要处理的文件（从01_original目录）
     files_to_process = []
     
-    for file in os.listdir(current_directory):
-        if file.endswith('.ncm'):
-            name = file[:-4]
-            if name not in cracked:
-                filepath = os.path.join(current_directory, file)
-                files_to_process.append((filepath, name))
+    for file in original_dir.glob("*.ncm"):
+        name = file.stem
+        if name not in cracked:
+            files_to_process.append((file, name))
     
     if not files_to_process:
-        console.print("❌ 没有找到需要处理的 .ncm 文件", style="red")
+        console.print("❌ 在 01_original/ 目录中没有找到需要处理的 .ncm 文件", style="red")
+        console.print("💡 提示：请将NCM文件放入 01_original/ 目录", style="yellow")
         return
     
-    total_size = sum(os.path.getsize(fp) for fp, _ in files_to_process)
+    total_size = sum(fp.stat().st_size for fp, _ in files_to_process)
     max_workers = min(multiprocessing.cpu_count(), len(files_to_process), 4)
     
     console.print(f"📁 找到 [bold cyan]{len(files_to_process)}[/bold cyan] 个文件需要处理")
     console.print(f"💾 总大小: [bold yellow]{total_size/(1024*1024):.1f} MB[/bold yellow]")
-    console.print(f"⚡ 使用 [bold green]{max_workers}[/bold green] 个并行进程\n")
+    console.print(f"⚡ 使用 [bold green]{max_workers}[/bold green] 个并行进程")
+    console.print(f"📂 输出目录: [bold blue]02_decrypted/[/bold blue]\n")
     
     # 创建结果统计表
     results_table = Table(title="🎵 解密结果统计")

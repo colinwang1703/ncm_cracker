@@ -118,7 +118,7 @@ def dump_ultra_fast(file_path, name):
                 
                 # 准备输出文件
                 file_name = os.path.splitext(os.path.basename(file_path))[0] + '.' + meta_data['format']
-                output_path = os.path.join(os.path.dirname(file_path), file_name)
+                output_path = os.path.join("02_decrypted", file_name)
                 
                 # 音频数据处理 - 使用1MB大缓冲区！
                 audio_data_size = file_size - offset
@@ -160,7 +160,14 @@ def main_ultra_fast():
     """主函数，实现超快速并行处理"""
     console.print(Panel.fit("🚀 NCM 超快速解密器", style="bold magenta"))
     console.print("💫 黑科技加持：NumPy向量化 + 内存映射 + 预计算查找表 + 多进程并行")
+    console.print("📁 使用规范化目录结构：01_original -> 02_decrypted")
     console.print("⚡ [bold yellow]速度暴增的秘密武器全开启！[/bold yellow]\n")
+    
+    # 确保目录结构存在
+    original_dir = pathlib.Path("01_original")
+    decrypted_dir = pathlib.Path("02_decrypted")
+    original_dir.mkdir(exist_ok=True)
+    decrypted_dir.mkdir(exist_ok=True)
     
     try:
         with open('cracked.txt', 'r', encoding='utf-8') as f:
@@ -168,26 +175,27 @@ def main_ultra_fast():
     except FileNotFoundError:
         cracked = set()
     
-    # 查找需要处理的文件
-    current_directory = os.getcwd()
+    # 查找需要处理的文件（从01_original目录）
     files_to_process = []
     
-    for file in os.listdir(current_directory):
-        if file.endswith('.ncm'):
-            name = file[:-4]
-            if name not in cracked:
-                filepath = os.path.join(current_directory, file)
-                files_to_process.append((filepath, name))
+    for file in original_dir.glob("*.ncm"):
+        name = file.stem
+        if name not in cracked:
+            files_to_process.append((str(file), name))
     
     if not files_to_process:
-        console.print("❌ 没有找到需要处理的 .ncm 文件", style="red")
+        console.print("❌ 在 01_original/ 目录中没有找到需要处理的 .ncm 文件", style="red")
+        console.print("💡 提示：请将NCM文件放入 01_original/ 目录", style="yellow")
         return
     
-    total_size = sum(os.path.getsize(fp) for fp, _ in files_to_process)
+    total_size = sum(pathlib.Path(fp).stat().st_size for fp, _ in files_to_process)
     max_workers = min(multiprocessing.cpu_count(), len(files_to_process), 6)
     
     console.print(f"📁 找到 [bold cyan]{len(files_to_process)}[/bold cyan] 个文件需要处理")
     console.print(f"💾 总大小: [bold yellow]{total_size/(1024*1024):.1f} MB[/bold yellow]")
+    console.print(f"🔥 使用 [bold red]{max_workers}[/bold red] 个并行进程 (超快速模式)")
+    console.print(f"📂 输出目录: [bold blue]02_decrypted/[/bold blue]")
+    console.print("🎯 [bold green]准备释放洪荒之力...[/bold green]\n")
     console.print(f"🔥 使用 [bold red]{max_workers}[/bold red] 个并行进程 (超快速模式)")
     console.print("🎯 [bold green]准备释放洪荒之力...[/bold green]\n")
     
