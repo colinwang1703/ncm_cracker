@@ -11,6 +11,7 @@
 import numpy as np
 import mmap
 import multiprocessing
+import pathlib
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn, BarColumn, TaskProgressColumn, TextColumn
